@@ -715,29 +715,40 @@
             document.getElementById('booking').scrollIntoView({ behavior: 'smooth' });
         };
 
-        // ===== Form Submit → WhatsApp =====
-        document.getElementById('orderForm').addEventListener('submit', (e) => {
+        // ===== PERBAIKAN BAGIAN WHATSAPP (SKIP BROWSER) =====
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
             const name = document.getElementById('name').value.trim();
             const service = document.getElementById('serviceType').value;
             const message = document.getElementById('message').value.trim();
 
             if (!name) {
-                alert('Mohon isi nama Anda terlebih dahulu.');
+                alert('Silakan masukkan nama Anda.');
                 return;
             }
 
-            let text = `Halo! Saya *${name}*%0A`;
-            if (service) text += `Layanan: *${service}*%0A`;
-            if (message) text += `Pesan: ${encodeURIComponent(message)}%0A`;
-            text += `%0A_Dikirim dari website @Fen._`;
+            // Pesan yang akan dikirim
+            let text = `Halo! Saya *${name}*\n`;
+            if (service) text += `Layanan: *${service}*\n`;
+            if (message) text += `Pesan: ${message}\n`;
+            text += `\n_Sent via Portfolio Website_`;
 
-            // Ganti nomor WhatsApp di bawah dengan nomor Anda
             const phoneNumber = '6287844395660';
-            const waURL = `https://wa.me/${phoneNumber}?text=${text}`;
+            const encodedText = encodeURIComponent(text);
 
-            window.open(waURL, '_blank');
-            e.target.reset();
+            // DETEKSI MOBILE: Untuk skip browser konfirmasi
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            if (isMobile) {
+                // Protokol whatsapp:// langsung memicu aplikasi terbuka di HP
+                window.location.href = `whatsapp://send?phone=${phoneNumber}&text=${encodedText}`;
+            } else {
+                // Untuk Desktop tetap gunakan wa.me agar membuka WhatsApp Web
+                window.open(`https://wa.me/${phoneNumber}?text=${encodedText}`, '_blank');
+            }
+
+            this.reset();
         });
     })();
     </script>
